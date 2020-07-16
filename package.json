@@ -1,0 +1,19 @@
+{
+  "name": "coracao",
+  "version": "0.0.1",
+  "description": "Records thoughts counter",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lonny Gomes",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.7.0",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "fs-extra": "^7.0.1"
+  }
+}
