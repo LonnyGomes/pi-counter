@@ -1,7 +1,7 @@
 {
-  "name": "coracao",
+  "name": "pi-counter",
   "version": "0.0.1",
-  "description": "Records thoughts counter",
+  "description": "Event count up",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
