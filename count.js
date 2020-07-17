@@ -1,40 +1,51 @@
 const path = require('path');
 const fs = require('fs-extra');
-const filename = path.resolve(__dirname, 'count.json');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const filename = path.resolve(__dirname, 'config.json');
+const { DateTime } = require('luxon');
 
 module.exports = class Count {
-    async init() {
-        const curCount = await this.loadCount();
-        this.updateDisplay(curCount.total);
-
-        return Promise.resolve(curCount);
+    constructor(inputConfig = filename) {
+        this.configFilename = inputConfig;
     }
 
-    loadCount() {
-        return fs.readJSONSync(filename);
+    async loadConfig() {
+        return fs.readJSON(this.configFilename);
     }
 
-    async saveCount(newVal) {
-        await fs.writeJSONSync(filename, { total: newVal });
+    async update() {
+        const config = await this.loadConfig();
+        config.total = this.calcDayDiff(config.startDate);
+        this.updateDisplay(config.total);
 
-        return this.loadCount();
+        return Promise.resolve(config);
     }
 
-    async incrementCount() {
-        const curCount = await this.loadCount();
-        curCount.total += 1;
+    async resetDate() {
+        const config = await this.loadConfig();
+        config.startDate = DateTime.fromMillis(Date.now()).toISODate();
+        await fs.writeJSON(this.configFilename, config);
 
-        // update the hardware display
-        this.updateDisplay(curCount.total);
-
-        return await this.saveCount(curCount.total);
+        return config;
     }
 
-    updateDisplay(countVal) {
-        const socket = fs.createWriteStream('/tmp/countpipe');
-        socket.write(`${countVal}`);
-        socket.close();
+    updateDisplay(countVal, socketPath = '/tmp/countpipe') {
+        return new Promise((resolve, reject) => {
+            const socket = fs.createWriteStream(socketPath, {
+                emitClose: true,
+            });
+            socket.write(`${countVal}`);
+            socket.close();
+
+            socket.on('close', resolve);
+            socket.on('error', reject);
+        });
+    }
+
+    calcDayDiff(startDateStr) {
+        const startDt = DateTime.fromISO(startDateStr);
+        const curDate = DateTime.fromMillis(Date.now());
+
+        const { days } = curDate.diff(startDt, 'days').toObject();
+        return Math.abs(Math.floor(days));
     }
 };
