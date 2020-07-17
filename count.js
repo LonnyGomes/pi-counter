@@ -23,6 +23,7 @@ module.exports = class Count {
     async resetDate() {
         const config = await this.loadConfig();
         config.startDate = DateTime.fromMillis(Date.now()).toISODate();
+        this.updateDisplay(0);
         await fs.writeJSON(this.configFilename, config);
 
         return config;
