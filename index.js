@@ -6,19 +6,20 @@ const app = new Koa();
 const Count = require('./count');
 const count = new Count();
 
-router.get('/', (ctx, next) => {
-    ctx.body = count.loadCount();
+router.get('/', async (ctx, next) => {
+    ctx.body = await count.loadConfig();
 });
 
-router.post('/increment', async (ctx) => {
-    ctx.body = await count.incrementCount();
+router.post('/reset', async (ctx) => {
+    ctx.body = await count.resetDate();
 });
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods());
+app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000);
 
-// now init the count display
-count.init();
+(async () => {
+    // now init the count display
+    const d = await count.update();
+    console.log('d', d);
+})();
