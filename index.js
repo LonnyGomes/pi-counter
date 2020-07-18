@@ -2,10 +2,10 @@ const Koa = require('koa');
 var Router = require('koa-router');
 var router = new Router();
 const app = new Koa();
+const cron = require('node-cron');
 
 const Count = require('./count');
 const count = new Count();
-
 router.get('/', async (ctx, next) => {
     ctx.body = await count.loadConfig();
 });
@@ -17,6 +17,11 @@ router.post('/reset', async (ctx) => {
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000);
+
+cron.schedule('* * * * *', async () => {
+    // update count
+    await count.update();
+});
 
 (async () => {
     // now init the count display
