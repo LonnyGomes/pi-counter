@@ -20,6 +20,8 @@ app.listen(3000);
 
 (async () => {
     // now init the count display
-    const d = await count.update();
-    console.log('d', d);
+    const { startDate, total } = await count.update();
+    console.log(
+        `Initialized with a start date of ${startDate} and count of ${total}`
+    );
 })();
