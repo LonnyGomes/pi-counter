@@ -1,4 +1,6 @@
 const Koa = require('koa');
+const serve = require('koa-static');
+const mount = require('koa-mount');
 var Router = require('koa-router');
 var router = new Router();
 const app = new Koa();
@@ -6,7 +8,10 @@ const cron = require('node-cron');
 
 const Count = require('./count');
 const count = new Count();
-router.get('/', async (ctx, next) => {
+
+app.use(mount('/', serve('./public/')));
+
+router.get('/status', async (ctx, next) => {
     ctx.body = await count.loadConfig();
 });
 
